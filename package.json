@@ -28,7 +28,6 @@
     "ramda": "^0.25.0"
   },
   "devDependencies": {
-    "babel": "^6.23.0",
     "config": "^1.30.0"
   }
 }

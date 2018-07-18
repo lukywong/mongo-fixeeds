@@ -7,7 +7,7 @@ const R = require('ramda');
 const dissocAll = R.flip(R.reduce(R.flip(R.dissoc)));
 
 const MongoClient = mongodb.MongoClient;
-const options = { useNewUrlParser: true };
+const mongoOptions = { useNewUrlParser: true };
 
 const DEFAULT_OPTIONS = {
   except: (e => ({ _id: e._id })),
@@ -17,7 +17,7 @@ const DEFAULT_OPTIONS = {
 };
 
 const getDbName = mongoUrl => url.parse(mongoUrl).pathname.substr(1);
-const mongoConnect = mongoUrl => MongoClient.connect(mongoUrl, options);
+const mongoConnect = mongoUrl => MongoClient.connect(mongoUrl, mongoOptions);
 const isNullOrEmpty = s => R.is(String, s) && R.isEmpty(R.trim(s)) || !R.is(String, s);
 const isFileSync = fname => fs.existsSync(fname) && fs.statSync(fname).isFile();
 const isDirSync = fname => fs.existsSync(fname) && fs.statSync(fname).isDirectory();
