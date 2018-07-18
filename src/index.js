@@ -11,9 +11,9 @@ const options = { useNewUrlParser: true };
 
 const DEFAULT_OPTIONS = {
   except: (e => ({ _id: e._id })),
-  excludes: ['createdAt'],
+  excludes: [],
   operation: 'update',
-  filename: null
+  files: []
 };
 
 const getDbName = mongoUrl => url.parse(mongoUrl).pathname.substr(1);
@@ -28,9 +28,9 @@ const _load = function(db, data, options) {
     const dc = data[name];
     const dv = dc.data || dc;
     const ok = dc.ok;
-    const operation = dc.operation || options.operation;
-    const by = dc.except || options.except;
-    const excludesProps = dc.excludes || options.excludes;
+    const operation = dc.operation || options.operation || DEFAULT_OPTIONS.operation;
+    const by = dc.except || options.except || DEFAULT_OPTIONS.except;
+    const excludesProps = dc.excludes || options.excludes || DEFAULT_OPTIONS.excludes;
     const findItem = query => db.collection(name).find(query).toArray();
     if (operation == 'insert') {
       const insertions = dv.map(item => {
@@ -126,26 +126,31 @@ const clearAll = function(mongoUrl) {
   });
 };
 
-const getFixeeds = function(fixeedsPath, { filename }) {
+const matchFile = (files, fname) => {
+  if (!R.is(Array, files) || files.length == 0) return true;
+  return R.contains(fname, files);
+};
+
+const getFixeeds = function(fixeedsPath, options) {
   if (isFileSync(fixeedsPath)) return [fixeedsPath];
   if (isDirSync(fixeedsPath)) {
     const dirs = fs.readdirSync(fixeedsPath);
-    const resolveFilePath = R.curry((path2, path1) => path.resolve(fixeedsPath, path1, path2));
-    const resolvePath = resolveFilePath('');
-    if (isNullOrEmpty(filename)) {
-      return dirs.map(resolvePath).filter(isFileSync);
-    } else {
-      const rootSeeds = resolvePath(filename);
-      const dirSeeds = dirs.map(resolveFilePath(filename))
-      return [rootSeeds, ...dirSeeds].filter(isFileSync);
-    }
+    const { files } = options;
+    return dirs.reduce((sofar, curr) => {
+      const fname = path.resolve(fixeedsPath, curr);
+      if (isFileSync(fname) && matchFile(files, curr)) return sofar.concat([fname]);
+      if (isDirSync(fname)) {
+        const seeds = getFixeeds(fname, options);
+        return sofar.concat(seeds);
+      }
+      return sofar;
+    }, []);
   }
   return [];
 };
 
 const load = function(mongoUrl, fixeedsPath, options) {
   const seeds = getFixeeds(fixeedsPath, options);
-  console.log(seeds);
   const promises = seeds.map(e => loadFile(mongoUrl, e, options));
   return Promise.all(promises).then(statistics);
 };
