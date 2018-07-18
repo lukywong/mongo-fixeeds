@@ -18,6 +18,9 @@ const DEFAULT_OPTIONS = {
 
 const getDbName = mongoUrl => url.parse(mongoUrl).pathname.substr(1);
 const mongoConnect = mongoUrl => MongoClient.connect(mongoUrl, options);
+const isNullOrEmpty = s => R.is(String, s) && R.isEmpty(R.trim(s)) || !R.is(String, s);
+const isFileSync = fname => fs.existsSync(fname) && fs.statSync(fname).isFile();
+const isDirSync = fname => fs.existsSync(fname) && fs.statSync(fname).isDirectory();
 
 const _load = function(db, data, options) {
   const collectionNames = Object.keys(data);
@@ -123,17 +126,27 @@ const clearAll = function(mongoUrl) {
   });
 };
 
-const load = function(mongoUrl, fixeedsPath, options) {
-  const seedsPathStat = fs.statSync(fixeedsPath);
-  let seedFiles = [];
-  if (seedsPathStat.isFile()) {
-    seedFiles = [fixeedsPath];
-  } else if (seedsPathStat.isDirectory()) {
-    seedFiles = fs.readdirSync(fixeedsPath)
-      .map(dirName => path.resolve(fixeedsPath, dirName));
+const getFixeeds = function(fixeedsPath, { filename }) {
+  if (isFileSync(fixeedsPath)) return [fixeedsPath];
+  if (isDirSync(fixeedsPath)) {
+    const dirs = fs.readdirSync(fixeedsPath);
+    const resolveFilePath = R.curry((path2, path1) => path.resolve(fixeedsPath, path1, path2));
+    const resolvePath = resolveFilePath('');
+    if (isNullOrEmpty(filename)) {
+      return dirs.map(resolvePath).filter(isFileSync);
+    } else {
+      const rootSeeds = resolvePath(filename);
+      const dirSeeds = dirs.map(resolveFilePath(filename))
+      return [rootSeeds, ...dirSeeds].filter(isFileSync);
+    }
   }
-  const promises = seedFiles.filter(fs.existsSync)
-    .map(e => loadFile(mongoUrl, e, options));
+  return [];
+};
+
+const load = function(mongoUrl, fixeedsPath, options) {
+  const seeds = getFixeeds(fixeedsPath, options);
+  console.log(seeds);
+  const promises = seeds.map(e => loadFile(mongoUrl, e, options));
   return Promise.all(promises).then(statistics);
 };
 

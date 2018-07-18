@@ -3,9 +3,9 @@ const config = require('config')
 
 const mongoFixeeds = require('../src/index');
 const mongoUrl = config.mongoUrl;
-const seedsPath = path.join(__dirname, './fixtures/users.js');
+const seedsPath = path.join(__dirname, './fixtures/');
 
-const fixeeds = new mongoFixeeds.Loader(mongoUrl);
+const fixeeds = new mongoFixeeds.Loader(mongoUrl, { filename: 'seeds.js' });
 
 fixeeds.load(seedsPath)
   .then(({ mc, uc, ic }) => {
