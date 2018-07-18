@@ -1,0 +1,34 @@
+{
+  "name": "mongo-fixeeds",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "fixeeds": "NODE_ENV=testing node ./samples/mongo-fixeeds-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lukywong/mongo-fixeeds.git"
+  },
+  "keywords": [
+    "mongo",
+    "mongodb",
+    "fixtures",
+    "seeds"
+  ],
+  "author": "lukywong#gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lukywong/mongo-fixeeds/issues"
+  },
+  "homepage": "https://github.com/lukywong/mongo-fixeeds#readme",
+  "dependencies": {
+    "mongodb": "^3.1.1",
+    "ramda": "^0.25.0"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "config": "^1.30.0"
+  }
+}
