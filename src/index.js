@@ -18,7 +18,6 @@ const DEFAULT_OPTIONS = {
 
 const getDbName = mongoUrl => url.parse(mongoUrl).pathname.substr(1);
 const mongoConnect = mongoUrl => MongoClient.connect(mongoUrl, mongoOptions);
-const isNullOrEmpty = s => R.is(String, s) && R.isEmpty(R.trim(s)) || !R.is(String, s);
 const isFileSync = fname => fs.existsSync(fname) && fs.statSync(fname).isFile();
 const isDirSync = fname => fs.existsSync(fname) && fs.statSync(fname).isDirectory();
 
@@ -30,7 +29,7 @@ const _load = function(db, data, options) {
     const ok = dc.ok;
     const operation = dc.operation || options.operation || DEFAULT_OPTIONS.operation;
     const by = dc.except || options.except || DEFAULT_OPTIONS.except;
-    const excludesProps = dc.excludes || options.excludes || DEFAULT_OPTIONS.excludes;
+    const excludesProps = [].concat(dc.excludes).concat(options.excludes);
     const findItem = query => db.collection(name).find(query).toArray();
     if (operation == 'insert') {
       const insertions = dv.map(item => {
