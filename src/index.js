@@ -99,7 +99,9 @@ const loadFile = function(mongoUrl, fname, options) {
   const data = require(fname);
   let docs = [];
   if (Array.isArray(data)) docs = data;
-  else if (typeof data === 'object') docs = [data];
+  else if (typeof data === 'object') {
+    if (!data.ignore) docs = [data];
+  }
   return Promise.all(docs.map(e => loadData(mongoUrl, e, options))).then(statistics);
 };
 
