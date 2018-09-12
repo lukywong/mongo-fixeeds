@@ -4,7 +4,6 @@ const url = require('url');
 const assert = require('assert');
 const mongodb = require('mongodb');
 const R = require('ramda');
-const dissocAll = R.flip(R.reduce(R.flip(R.dissoc)));
 
 const MongoClient = mongodb.MongoClient;
 const mongoOptions = { useNewUrlParser: true };
@@ -46,7 +45,7 @@ const _load = function(db, data, options) {
     const replaces = dv.map(item => {
       return findItem(by(item)).then(ret => {
         let _item = item;
-        if (ret && ret.length) _item = dissocAll(excludesProps, item);
+        if (ret && ret.length) _item = R.omit(excludesProps, item);
         return db.collection(name)
           .updateOne(by(item), { $set: _item }, { upsert: true })
           .then(ret => {
