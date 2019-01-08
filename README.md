@@ -56,7 +56,7 @@ You can specify operation or behaviour for each document in `custom mode`, expor
 exports.users = { 
   data: users, 
   operation: 'insert',
-  except: e => ({_id: e._id }) // can be emitted here, because it's the default behaviour
+  except: e => ({_id: e._id }) // can be omitted here, because it's the default behaviour
 };
 
 // accounts will be inserted to MongoDB except that
