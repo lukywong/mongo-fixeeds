@@ -87,7 +87,7 @@ exports.accounts = {
 Sometimes data will only be exported to other documents to use, you can use `ignore` to specify the documents will not be loaded to MongoDB.
 
 ``` javascript
-exports.accountInfos = {
+module.exports = {
   data: accountInfos,
   ignore: true
 };

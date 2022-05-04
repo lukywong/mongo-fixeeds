@@ -1,12 +1,15 @@
 const fs = require('fs');
 const path = require('path');
-const url = require('url');
+const { URL } = require('url');
 const assert = require('assert');
 const mongodb = require('mongodb');
 const R = require('ramda');
 
 const MongoClient = mongodb.MongoClient;
-const mongoOptions = { useNewUrlParser: true };
+const mongoOptions = { 
+  useUnifiedTopology: true,
+  useNewUrlParser: true
+};
 
 const DEFAULT_OPTIONS = {
   except: (e => ({ _id: e._id })),
@@ -15,7 +18,7 @@ const DEFAULT_OPTIONS = {
   files: []
 };
 
-const getDbName = mongoUrl => url.parse(mongoUrl).pathname.substr(1);
+const getDbName = mongoUrl => new URL(mongoUrl).pathname.substring(1);
 const mongoConnect = mongoUrl => MongoClient.connect(mongoUrl, mongoOptions);
 const isFileSync = fname => fs.existsSync(fname) && fs.statSync(fname).isFile();
 const isDirSync = fname => fs.existsSync(fname) && fs.statSync(fname).isDirectory();
